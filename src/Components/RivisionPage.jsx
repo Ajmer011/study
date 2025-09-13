@@ -1,194 +1,195 @@
 import React, { useState, useEffect } from "react";
-import { FaCheckCircle, FaClock, FaBookOpen, FaChartBar } from "react-icons/fa";
+import dayjs from "dayjs";
+import { motion, AnimatePresence } from "framer-motion";
 
-const initialChapters = [
-  { id: 1, subject: "Math", chapter: "Algebra", due: "2025-06-01", status: "pending", history: {} },
-  { id: 2, subject: "Science", chapter: "Motion", due: "2025-06-02", status: "pending", history: {} },
-  { id: 3, subject: "History", chapter: "World War II", due: "2025-06-03", status: "completed", history: {} },
-  { id: 4, subject: "English", chapter: "Grammar Basics", due: "2025-06-01", status: "pending", history: {} },
-];
+const RevisionPage = () => {
+  const [studyText, setStudyText] = useState("");
+  const [subject, setSubject] = useState("General");
+  const [records, setRecords] = useState([]);
+  const [filterSubject, setFilterSubject] = useState("All");
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-// Helper: get days difference from today to due date
-const daysUntilDue = (dueDate) => {
-  const today = new Date();
-  const due = new Date(dueDate);
-  const diffTime = due - today;
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // days
-};
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedRecords = JSON.parse(localStorage.getItem("revisionRecords")) || [];
+    setRecords(savedRecords);
+  }, []);
 
-// Format date as YYYY-MM-DD
-const formatDate = (date) => date.toISOString().slice(0, 10);
+  // Save to localStorage whenever records change
+  useEffect(() => {
+    localStorage.setItem("revisionRecords", JSON.stringify(records));
+  }, [records]);
 
-const getStatusColor = (status) => {
-  if (status === "completed") return "text-green-600";
-  return "text-red-600";
-};
-
-const RevisionReminder = () => {
-  const [chapterList, setChapterList] = useState(initialChapters);
-  const [newChapter, setNewChapter] = useState({ subject: "", chapter: "", due: "" });
-
-  // Mark completion toggles and records today's revision in history as 100% if completed
-  const toggleCompletion = (id) => {
-    const today = formatDate(new Date());
-    const updated = chapterList.map((c) => {
-      if (c.id === id) {
-        const newStatus = c.status === "completed" ? "pending" : "completed";
-        let newHistory = { ...c.history };
-        if (newStatus === "completed") {
-          newHistory[today] = 100; // 100% revision for today
-        } else {
-          newHistory[today] = 0; // mark 0 if toggled back to pending
-        }
-        return { ...c, status: newStatus, history: newHistory };
-      }
-      return c;
-    });
-    setChapterList(updated);
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
   };
 
-  // Add new chapter
-  const addChapter = () => {
-    if (!newChapter.subject || !newChapter.chapter || !newChapter.due) return alert("Please fill all fields");
+  // Add new record
+  const handleAdd = () => {
+    if (studyText.trim() === "") return;
 
-    const newId = chapterList.length ? Math.max(...chapterList.map((c) => c.id)) + 1 : 1;
-    setChapterList([
-      ...chapterList,
-      { id: newId, ...newChapter, status: "pending", history: {} },
-    ]);
-    setNewChapter({ subject: "", chapter: "", due: "" });
+    const newRecord = {
+      id: Date.now(),
+      date: dayjs().format("DD MMM YYYY, HH:mm"),
+      text: studyText,
+      subject,
+    };
+
+    setRecords([newRecord, ...records]);
+    setStudyText("");
+    setSubject("General");
   };
 
-  // Get last 7 days dates array
-  const getLast7Days = () => {
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      days.push(formatDate(d));
-    }
-    return days;
+  // Delete record
+  const handleDelete = (id) => {
+    setRecords(records.filter((record) => record.id !== id));
   };
 
-  // Calculate daily revision % (across all chapters) for last week
-  const dailyRevisionPercent = () => {
-    const days = getLast7Days();
-    return days.map((day) => {
-      let total = 0;
-      let count = 0;
-      chapterList.forEach((c) => {
-        if (c.history && c.history[day] !== undefined) {
-          total += c.history[day];
-          count++;
-        }
-      });
-      // Average % revision for this day, or 0 if none
-      return { day, percent: count ? Math.round(total / count) : 0 };
-    });
-  };
+  // Filter records by subject
+  const filteredRecords = filterSubject === "All"
+    ? records
+    : records.filter((record) => record.subject === filterSubject);
 
-  const pendingChapters = chapterList.filter((c) => c.status === "pending");
-  const dailyStats = dailyRevisionPercent();
+  // Animation variants
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.2 } }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-white p-10">
-      <h1 className="text-3xl font-bold text-center text-purple-800 mb-6">
-        🧠 Chapter-wise Revision Tracker
-      </h1>
-
-      <div className="mb-6 text-center text-gray-700">
-        <FaChartBar className="inline text-2xl mr-2" />
-        <strong>{pendingChapters.length}</strong> Chapters Pending — Don’t Forget to Revise Today!
-      </div>
-
-      {/* Add new chapter */}
-      <div className="mb-8 max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4 text-purple-700">Add New Chapter to Revise</h2>
-        <input
-          type="text"
-          placeholder="Subject"
-          value={newChapter.subject}
-          onChange={(e) => setNewChapter({ ...newChapter, subject: e.target.value })}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Chapter Name"
-          value={newChapter.chapter}
-          onChange={(e) => setNewChapter({ ...newChapter, chapter: e.target.value })}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <input
-          type="date"
-          placeholder="Due Date"
-          value={newChapter.due}
-          onChange={(e) => setNewChapter({ ...newChapter, due: e.target.value })}
-          className="w-full mb-3 px-3 py-2 border rounded"
-        />
-        <button
-          onClick={addChapter}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded font-semibold"
+    <div className={`min-h-screen p-8 transition-colors duration-300 ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white' : 'bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100 text-gray-800'}`}>
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex justify-between items-center mb-8"
         >
-          Add Chapter
-        </button>
-      </div>
-
-      {/* Daily revision stats last 7 days */}
-      <div className="mb-6 max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-purple-700 mb-4">Last 7 Days Revision Progress (%)</h2>
-        <div className="flex space-x-2 justify-between text-sm text-gray-600">
-          {dailyStats.map(({ day, percent }) => (
-            <div key={day} className="text-center w-10">
-              <div
-                className="bg-purple-400 rounded"
-                style={{ height: `${percent}px`, marginBottom: '4px' }}
-                title={`${percent}%`}
-              ></div>
-              <div>{day.slice(5)}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {chapterList.map((c) => {
-          const daysLeft = daysUntilDue(c.due);
-          return (
-            <div
-              key={c.id}
-              className="bg-white shadow-md rounded-lg p-6 border-l-4 border-purple-400 hover:shadow-xl transition-all duration-300"
+          <div className="flex items-center">
+            <button
+              onClick={() => window.history.back()}
+              className="flex items-center gap-2 text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-100 transition font-semibold mr-4"
+              aria-label="Go back to dashboard"
             >
-              <h2 className="text-lg font-semibold text-gray-800 mb-1">
-                <FaBookOpen className="inline mr-2 text-blue-500" /> {c.chapter} ({c.subject})
-              </h2>
-              <p className="text-sm text-gray-500 mb-1">
-                <FaClock className="inline mr-1" /> Revise by: <strong>{c.due}</strong>
-              </p>
-              <p className="text-sm mb-3">
-                {daysLeft > 0
-                  ? `Next revision in ${daysLeft} day${daysLeft > 1 ? "s" : ""}`
-                  : daysLeft === 0
-                  ? "Revision due today!"
-                  : `Overdue by ${-daysLeft} day${-daysLeft > 1 ? "s" : ""}`}
-              </p>
-              <p className={`font-bold ${getStatusColor(c.status)} mb-4`}>Status: {c.status}</p>
-              <button
-                onClick={() => toggleCompletion(c.id)}
-                className={`px-4 py-2 rounded-md text-white font-semibold ${
-                  c.status === "completed"
-                    ? "bg-green-600 hover:bg-green-700"
-                    : "bg-red-500 hover:bg-red-600"
-                }`}
-              >
-                {c.status === "completed" ? "Mark as Pending" : "Mark as Done"}{" "}
-                <FaCheckCircle className="inline ml-1" />
-              </button>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <h1 className="text-4xl font-extrabold text-blue-400 drop-shadow-lg">
+              📘 Revision Dashboard
+            </h1>
+          </div>
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 rounded-full bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 hover:bg-gray-700 dark:hover:bg-gray-300 transition"
+            aria-label="Toggle dark mode"
+          >
+            {isDarkMode ? "☀️" : "🌙"}
+          </button>
+        </motion.div>
+
+        {/* Input Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="bg-[#1e2a38] dark:bg-[#2c3e50] p-6 rounded-2xl shadow-xl mb-8"
+        >
+          <h2 className="text-xl font-semibold text-blue-300 mb-4">Add Today’s Study</h2>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              placeholder="What did you study today?"
+              className="flex-1 p-3 rounded-lg bg-[#2c3e50] dark:bg-[#3b4a5e] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={studyText}
+              onChange={(e) => setStudyText(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleAdd()}
+            />
+            <select
+              className="p-3 rounded-lg bg-[#2c3e50] dark:bg-[#3b4a5e] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            >
+              <option>General</option>
+              <option>DSA</option>
+              <option>React</option>
+              <option>DBMS</option>
+              <option>OS</option>
+              <option>CN</option>
+            </select>
+            <button
+              onClick={handleAdd}
+              className="px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold shadow-md transition transform hover:scale-105"
+            >
+              Add
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Filter */}
+        <div className="flex justify-start items-center mb-6">
+          <select
+            className="p-2 rounded-lg bg-[#2c3e50] dark:bg-[#3b4a5e] border border-gray-600 focus:outline-none"
+            value={filterSubject}
+            onChange={(e) => setFilterSubject(e.target.value)}
+          >
+            <option>All</option>
+            <option>General</option>
+            <option>DSA</option>
+            <option>React</option>
+            <option>DBMS</option>
+            <option>OS</option>
+            <option>CN</option>
+          </select>
+        </div>
+
+        {/* Records Section */}
+        <div>
+          {filteredRecords.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-[#1e2a38] dark:bg-[#2c3e50] p-6 rounded-2xl text-gray-400 text-center shadow-lg"
+            >
+              No revision records yet.
+            </motion.div>
+          ) : (
+            <div className="space-y-4">
+              <AnimatePresence>
+                {filteredRecords.map((record) => (
+                  <motion.div
+                    key={record.id}
+                    variants={cardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="bg-[#1e2a38] dark:bg-[#2c3e50] p-5 rounded-2xl shadow-lg flex justify-between items-center hover:bg-[#243447] dark:hover:bg-[#3b4a5e] transition"
+                  >
+                    <div>
+                      <p className="text-lg font-semibold text-blue-300">{record.subject}</p>
+                      <p className="text-white">{record.text}</p>
+                      <p className="text-sm text-gray-400 mt-1">{record.date}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDelete(record.id)}
+                      className="p-2 bg-red-600 hover:bg-red-700 rounded-lg text-white transition transform hover:scale-105"
+                      aria-label="Delete record"
+                    >
+                      🗑️
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default RevisionReminder;
+export default RevisionPage;

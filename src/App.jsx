@@ -5,6 +5,7 @@ import LandingPage from './Components/LandingPage';  // Import LandingPage compo
 import LoginPage from './Components/LoginPage';
 import RegistrationPage from './Components/RegistrationPage';
 import HomePage from './Components/HomePage';
+import GuardianPage from './Components/GuardianPage';
 
 import PlanningPage from './Components/PlanningPage';
 import NotewithFlashcard from './Components/NotewithFlashcard';
@@ -32,11 +33,15 @@ function App() {
           {/* <Route path="/" element={<HomePage />} /> */}
           <Route path="/notes" element={<NotewithFlashcard />} />
            <Route path="/progress" element={<ProgressPage />} />
-           <Route path="/rivision" element={<RivisionPage />} />
+         
             <Route path="/signup" element={<RegistrationPage />} />
             <Route path="/timer" element={<Prodotimer />} />
              <Route path="/profile" element={<ProfilePage/>} />
               <Route path="/profileedit" element={<Profileedit/>} />
+               <Route path="/guardian" element={<GuardianPage/>} />
+                 <Route path="/rivision" element={<RivisionPage />} />
+                 
+              
       </Routes>
     </Router>
   );

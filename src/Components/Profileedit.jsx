@@ -24,6 +24,7 @@ const ProfilePage = () => {
 
         {/* Main Content */}
         <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10">
+
           {/* Left - Profile Image */}
           <div className="flex flex-col items-center p-6">
             <div className="relative group">
@@ -46,24 +47,54 @@ const ProfilePage = () => {
           <div className="p-8">
             <h2 className="text-xl font-semibold mb-6">Personal Info</h2>
             <div className="grid grid-cols-2 gap-4">
-              <input className="input-field-dark" placeholder="First Name" />
-              <input className="input-field-dark" placeholder="Surname" />
+              <input
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
+                placeholder="First Name"
+              />
+              <input
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
+                placeholder="Surname"
+              />
             </div>
-            <input className="input-field-dark mt-4" placeholder="Phone Number" />
-            <input className="input-field-dark mt-4" placeholder="Email Address" />
-            <input className="input-field-dark mt-4" placeholder="Full Address" />
+            <input
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition mt-4"
+              placeholder="Phone Number"
+            />
+            <input
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition mt-4"
+              placeholder="Email Address"
+            />
+            <input
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition mt-4"
+              placeholder="Full Address"
+            />
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <input className="input-field-dark" placeholder="Country" />
-              <input className="input-field-dark" placeholder="State/Region" />
+              <input
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
+                placeholder="Country"
+              />
+              <input
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
+                placeholder="State/Region"
+              />
             </div>
-            <input className="input-field-dark mt-4" placeholder="Education" />
+            <input
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition mt-4"
+              placeholder="Education"
+            />
           </div>
 
           {/* Right - Experience */}
           <div className="p-8">
             <h2 className="text-xl font-semibold mb-6">Experience</h2>
-            <input className="input-field-dark" placeholder="Experience in Designing" />
-            <input className="input-field-dark mt-4" placeholder="Additional Details" />
+            <input
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition"
+              placeholder="Experience in Designing"
+            />
+            <input
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 transition mt-4"
+              placeholder="Additional Details"
+            />
 
             {/* Buttons */}
             <div className="flex justify-end gap-4 mt-8">
@@ -75,6 +106,7 @@ const ProfilePage = () => {
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>

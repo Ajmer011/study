@@ -28,12 +28,28 @@ const HomePage = () => {
         </ul>
         <div className="flex space-x-4">
           {/* Login and Trial Buttons */}
-          <Link to="/login"><button className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500">
-            Login
-          </button></Link> 
-          <Link to="/trial"> <button className="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500">
-            Start Trial
-          </button></Link>
+          <div className="flex space-x-4">
+  {/* Login as Student */}
+  <Link to="/login">
+    <button className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500">
+      👨‍🎓 Login as Student
+    </button>
+  </Link>
+
+  {/* Login as Guardian */}
+  <Link to="/guardian">
+    <button className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+      👨‍👩‍👧‍👦 Login as Guardian
+    </button>
+  </Link>
+
+  {/* Start Trial */}
+  <Link to="/trial">
+    <button className="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500">
+      Start Trial
+    </button>
+  </Link>
+</div>
         </div>
       </nav>
 
